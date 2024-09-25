@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.TransactionDAO">
+
+	<insert id="withdraw" parameterType="transactionVO">
+	insert into CB_Transaction
+	values(cb_tran_seq.nextval, '출금', systimestamp,
+	#{withdrawAcc}, #{withdrawName}, #{amount}, #{wAfterBalance})
+	</insert>
+	
+	<insert id="deposit" parameterType="transactionVO">
+	insert into CB_Transaction
+	values(cb_tran_seq.nextval, '입금', systimestamp,
+	#{depositAcc}, #{depositName}, #{amount}, #{dAfterBalance})
+	</insert>
+	
+	<select id="transactionListByAcc" parameterType="long" resultType="transactionVO">
+ 		SELECT to_char(transaction_date, 'yyyy-mm-dd') transactionDate
+		        , transaction_type transactionType, acc_num withdrawAcc
+		        , tran_name withdrawName, amount, after_balance wAfterBalance
+		FROM (
+		    SELECT 
+		        t.transaction_date, 
+		        t.transaction_type, 
+		        t.acc_num, 
+		        t.tran_name,
+		        t.amount,
+		        SUM(DECODE(t.transaction_type, '입금', t.amount, -t.amount)) 
+		            OVER (PARTITION BY t.acc_num ORDER BY t.transaction_date) AS after_balance
+		    FROM 
+		        cb_transaction t
+		    WHERE 
+		        t.acc_num = #{accNum}
+		) tb
+		<!-- 
+		WHERE  
+		    tb.transaction_date BETWEEN '2024-06-14' AND SYSDATE
+		 -->
+		ORDER BY 
+		    tb.transaction_date DESC
+		 <!-- 
+		 SELECT transaction_id transactionId, to_char(transaction_date, 'yyyy-mm-dd') transactionDate
+		 , transaction_type transactionType
+		 , acc_num withdrawAcc, tran_name withdrawName, amount, 
+		 after_balance wAfterBalance
+		 from cb_transaction
+		 where acc_num = #{long}
+		 ORDER BY transaction_date desc
+		  -->
+		<!-- 
+		 SELECT 
+			t.transaction_id transactionId,
+	        t.transaction_date transactionDate, t.acc_num withdrawAcc,
+	        d.tran_name AS deposit_name,
+	        d.amount AS dAfterBalance,
+	        w.tran_name AS withdrawName,
+	        w.amount AS wAfterBalance,
+	        ROUND(t.after_balance) amount
+	    FROM 
+		    (SELECT * FROM cb_transaction WHERE acc_num = #{accNum}) t
+		LEFT JOIN 
+		    (SELECT transaction_date, tran_name, amount, acc_num
+		     FROM cb_transaction 
+		     WHERE transaction_type = '입금' AND acc_num = #{accNum}) d 
+		ON 
+		    t.transaction_date = d.transaction_date
+		LEFT JOIN 
+		    (SELECT transaction_date, tran_name, amount, acc_num
+		     FROM cb_transaction 
+		     WHERE transaction_type = 'withdraw' AND acc_num = #{accNum}) w 
+		ON 
+		    t.transaction_date = w.transaction_date
+		 -->
+	</select>
+	
+	<select id="viewTranByDate" parameterType="transactionVO" resultType="transactionVO">
+		SELECT transaction_type transactionType, to_char(transaction_date, 'YYYY-MM-DD') transactionDate, tran_name withdrawName
+		, amount amount
+		FROM (
+		    SELECT t.*, ROWNUM AS rnum
+		    FROM (
+		        SELECT *
+		        FROM CB_TRANSACTION
+		        WHERE acc_num = #{withdrawAcc} 
+		        AND 
+		        TRANSACTION_DATE BETWEEN TO_DATE(#{transactionType}, 'YYYY-MM-DD') AND TO_DATE(#{transactionDate}, 'YYYY-MM-DD')+.86399
+		        ORDER BY TRANSACTION_DATE DESC
+		    ) t
+		)
+		<!-- 
+		WHERE rnum BETWEEN #{transactionId}+(#{transactionId}-1)*15 AND #{transactionId}*15
+		 -->
+	</select>
+	
+	<select id="getSumByDate" parameterType="transactionVO" resultType="Long">
+		SELECT (SELECT NVL(sum(amount), 0) FROM CB_TRANSACTION ct WHERE acc_num = #{withdrawAcc} AND transaction_date &lt;=#{transactionDate} and transaction_type='입금' )-
+		(SELECT NVL(sum(amount), 0) FROM CB_TRANSACTION ct WHERE acc_num = #{withdrawAcc} AND transaction_date &lt;=#{transactionDate} and transaction_type='출금') amount
+		FROM dual
+	</select>
+</mapper>

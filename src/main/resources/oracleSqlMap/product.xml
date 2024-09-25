@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ProductDAO">
+
+    <!-- 상품 추가 -->
+	<insert id="insertProduct" parameterType="productVO">
+	    insert into test_product_list
+	    (product_num, product_target, product_name, description, interest_rate, initial_deposit, date_of_deposit, available)
+	    values 
+	    (product_seq.nextval, #{productTarget}, #{productName}, #{description}, #{interestRate}, #{initialDeposit}, #{dateOfDeposit}, #{available})
+	</insert>
+	
+	<!-- 상품 정보 조회 -->
+	<select id="selectProduct" parameterType="int" resultType="productVO">
+	    select product_num as productNum,
+	           product_target as productTarget,
+	           product_name as productName,
+	           description,
+	           interest_rate as interestRate,
+	           initial_deposit as initialDeposit,
+	           date_of_deposit as dateOfDeposit,
+	           available
+	      from test_product_list 
+	     where product_num = #{productNum}
+	</select>
+	
+	<!-- 모든 상품 정보 조회 -->
+	<select id="selectAllProducts" resultType="productVO">
+	    select product_num as productNum,
+	           product_target as productTarget,
+	           product_name as productName,
+	           description,
+	           interest_rate as interestRate,
+	           initial_deposit as initialDeposit,
+	           date_of_deposit as dateOfDeposit,
+	           available
+	      from test_product_list
+	</select>
+	
+	<!-- 상품 정보 수정 -->
+	<update id="updateProduct" parameterType="productVO">
+	    update test_product_list
+	    set product_target = #{productTarget},
+	        product_name = #{productName},
+	        description = #{description},
+	        interest_rate = #{interestRate},
+	        initial_deposit = #{initialDeposit},
+	        date_of_deposit = #{dateOfDeposit},
+	        available = #{available}
+	    where product_num = #{productNum}
+	</update>
+	
+	<!-- 상품 비활성화 -->
+	<update id="deleteProduct" parameterType="productVO">
+	    update test_product_list
+	    set available = 0
+	    where product_num = #{productNum}
+	</update>
+	
+	<!-- 상품별 통계 정보 조회 -->
+	<select id="getProductStatistics" resultType="map">
+	    SELECT 
+	        p.product_num AS productNum,
+	        p.product_name AS productName,
+	        COUNT(DISTINCT a.acc_num) AS subscriberCount,
+	        SUM(CASE WHEN t.transaction_type = '입금' THEN t.amount ELSE 0 END) AS totalDeposit,
+	        SUM(CASE WHEN t.transaction_type = '출금' THEN t.amount ELSE 0 END) AS totalWithdraw,
+	        COUNT(DISTINCT CASE WHEN t.transaction_type = '가입' THEN a.acc_num ELSE NULL END) AS newSubscribers
+	    FROM 
+	        test_product_list p
+	    LEFT JOIN 
+	        cb_account a ON p.product_num = a.product_num
+	    LEFT JOIN 
+	        cb_transaction t ON a.acc_num = t.acc_num
+	    GROUP BY 
+	        p.product_num, p.product_name
+	</select>
+	
+	<!-- 신규 이용자 추이 조회 -->
+	<select id="getNewUserTrends" resultType="map">
+   SELECT
+      TO_CHAR(reg_date, 'YYYY-MM-DD') AS TRANSACTION_DATE,
+      COUNT(DISTINCT a.acc_num) AS newUserCount
+    FROM
+      cb_account a
+    GROUP BY
+      TO_CHAR(reg_date, 'YYYY-MM-DD')
+    ORDER BY
+      TO_CHAR(reg_date, 'YYYY-MM-DD') ASC
+  </select>
+
+	
+	<!-- 전체 이용자 수 -->
+	<select id="getTotalUsers" resultType="int">
+	    SELECT COUNT(*) FROM test_customer
+	</select>
+	
+	<!-- 신규 가입자 수 -->
+	<select id="getNewSubscribers" resultType="int">
+	    SELECT COUNT(DISTINCT acc_num) FROM cb_transaction WHERE transaction_type = '가입'
+	</select>
+	
+	<!-- 전체 입금액 -->
+	<select id="getTotalDeposits" resultType="long">
+	    SELECT SUM(amount) FROM cb_transaction WHERE transaction_type = '입금'
+	</select>
+	
+	<!-- 전체 출금액 -->
+	<select id="getTotalWithdrawals" resultType="long">
+	    SELECT SUM(amount) FROM cb_transaction WHERE transaction_type = '출금'
+	</select>
+	
+	
+	
+	
+	<!-- 약관 출력 -->
+	<select id="getProductDescription" resultType="string" parameterType="int">
+   	select description
+      from test_product_list
+     where product_num = #{productNum}
+  	</select>
+	
+</mapper>

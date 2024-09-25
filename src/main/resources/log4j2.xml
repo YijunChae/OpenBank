@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="debug"> 
+    <!-- DEBUG로 설정할시 모르는 줄이 더 뜸 -->
+    <Properties>
+        <Property name="log-path">./ob/logs</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="file-log" fileName="${log-path}/app.log" filePattern="${log-path}/app-%d{yyyy-MM-dd}.log">
+            <PatternLayout charset="UTF-8" pattern="[%5p] - %c{1}:%L %d{yyyy-MM-dd HH:mm:ss} - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"  modulate="true" />
+            </Policies>
+        </RollingFile>
+        
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+        </Console>
+        
+        <File name="transactions" fileName="${log-path}/transactions.log" append="true">
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"  modulate="true" />
+            </Policies>
+        </File>
+        
+        <File name="test" fileName="${log-path}/test.log" append="true">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"  modulate="true" />
+            </Policies>
+        </File>
+        
+    </Appenders>
+    <Loggers>
+        <Logger name="kopo.aisw.hc.*" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="transactions"/>
+            <AppenderRef ref="file-log"/>
+            <AppenderRef ref="test"/>
+        </Logger>
+        <Logger name="kopo.aisw.hc.controller.TestController" level="info" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="file-log"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="Console"/> 
+            <AppenderRef ref="test"/> <!-- 파일 출력을 위해 추가 -->
+        </Root>
+    </Loggers>
+</Configuration>
+
+<!-- 
+<Configuration>
+    <properties>
+        <property name="name">n_mo</property>
+        <property name="pattern">%d{yyyy-MM-dd HH:mm:ss.SSS} || %msg%n</property>
+        <property name="path">c:/logs</property>
+    </properties>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${pattern}"/>
+        </Console>
+        <RollingFile name="file" 
+                     fileName="${path}/${name}.log"
+                     filePattern="${path}/${name}_%d{yyyyMMdd}.log">
+            <PatternLayout>
+                <pattern>${pattern}</pattern>
+            </PatternLayout>
+            <Policies>
+                    <TimeBasedTriggeringPolicy/>
+            </Policies>     
+        </RollingFile>
+   </Appenders>
+    <Loggers>
+        <Logger name="egovframework.ECALL_O.main.web" level="INFO" additivity="FALSE">
+            <AppenderRef ref="console" />
+        </Logger>
+    </Loggers>
+</Configuration>
+ -->

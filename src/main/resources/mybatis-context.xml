@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<typeAliases>
+		<typeAlias type="kopo.aisw.hc.member.vo.SearchParam" 
+			alias="SearchParam"/>
+		<typeAlias type="kopo.aisw.hc.member.vo.MemberVO"
+			alias="memberVO" />
+		<typeAlias type="kopo.aisw.hc.product.vo.ProductVO"
+			alias="productVO" />
+		<typeAlias type="kopo.aisw.hc.account.vo.AccountVO"
+			alias="accountVO" />
+		<typeAlias type="kopo.aisw.hc.transaction.vo.TransactionVO"
+			alias="transactionVO" />
+	</typeAliases>
+	<!-- 
+	<mappers>
+		<mapper resource="./oracleSqlMap/member.xml" />
+	</mappers>
+	
+	applicationContext Line 24:
+	<property name="mapperLocations" value="classpath:oracleSqlMap/*.xml"/>
+	 -->
+	<!--
+	<mappers>
+		<mapper resource="oracleSqlMap/member.xml" />
+        <mapper resource="oracleSqlMap/product.xml" />
+        <mapper resource="oracleSqlMap/account.xml" />
+	</mappers>
+	-->
+</configuration>

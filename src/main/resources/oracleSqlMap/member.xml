@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+CREATE TABLE TEST_CUSTOMER(
+	CUSTOMER_ID NUMBER PRIMARY KEY
+	, BANK_ID VARCHAR2(20) UNIQUE
+	, PASSWORD VARCHAR2(256) 
+	, CREDIT_PASSWORD VARCHAR2(256)
+	, NAME VARCHAR2(13) NOT NULL
+	, PHONE_NUM VARCHAR2(13) NOT NULL UNIQUE
+	, EMAIL VARCHAR2(30) NOT NULL
+	, ZIP_CODE NUMBER(5) NOT NULL 
+	, ADDRESS VARCHAR2(300) NOT NULL
+	, ADDRESS_DETAIL VARCHAR2(300)
+	, RRN VARCHAR2(13) NOT NULL UNIQUE
+	, CUSTOMER_TYPE NUMBER(3) NOT NULL
+	, AVAILABLE_BALANCE	NUMBER(15) NOT NULL
+);
+CREATE SEQUENCE test_customer_seq;
+ -->
+<mapper namespace="dao.MemberDAO">
+	<!-- 회원삭제(관리자용) -->
+	
+	<!-- 회원탈퇴 -->
+	<update id="quitMember" parameterType="memberVO">
+	update test_customer
+	<set>
+		bank_id = null, password = null, credit_password = null
+	</set>
+	where customer_id = #{customerId}
+	</update>
+
+	<!-- 결제비밀번호 체크 -->
+	<select id="checkCreditPwd" parameterType="memberVO" resultType="memberVO">
+		select name
+		from test_customer
+		where customer_id = #{customerId} and credit_password=#{creditPassword}
+	</select>
+
+	<!-- 로그인 -->
+	<select id="signIn" parameterType="memberVO" resultType="memberVO">
+		<!-- select customer_ID customerid
+		from test_customer
+		where bank_id=#{userId} and password=#{password} -->
+		select customer_ID as customerId, name,
+		       password, customer_type customerType
+		from test_customer
+		where bank_id = #{userId}
+	</select>
+	
+	<!-- 회원가입 -->
+	<insert id="signUp" parameterType="memberVO">
+		insert into test_customer 
+		values(test_customer_seq.nextval, 
+		#{userId}, 
+		#{password}, 
+  		#{creditPassword}, 
+		#{name}, 
+		#{phoneNum}, 
+		#{email}, 
+		#{zipCode}, 
+		#{address},
+		#{addressDetail}, 
+		#{rrn}, 
+		0, 
+		0,
+		sysdate)
+	</insert>
+	
+	<!-- id 중복체크 -->
+	<select id="idDoubleCheck" parameterType="String" resultType="memberVO">
+		select bank_id userId
+		from test_customer
+		where bank_id = #{userId}
+	</select>
+	
+	<!-- human 중복체크 -->
+	<select id="humanDoubleCheck" parameterType="memberVO" resultType="memberVO">
+		select bank_id userid, name
+		from test_customer
+		where name=#{name} and rrn = #{rrn} and phone_num = #{phoneNum}
+	</select>
+	<!-- mail 중복체크 -->
+	<select id="mailDoubleCheck" parameterType="String" resultType="memberVO">
+		select email
+		from test_customer
+		where email = #{email}
+	</select>
+	<!-- phone 중복체크 -->
+	<select id="phoneDoubleCheck" parameterType="String" resultType="memberVO">
+		select phone_num phoneNum
+		from test_customer
+		where phone_num = #{phoneNum}
+	</select>
+	
+	<!-- 프로필 조회 -->
+	<select id="profile" parameterType="memberVO" resultType="memberVO">
+		select customer_ID customerid
+		, name
+		, bank_id userid
+		, phone_num phonenum
+		, email
+		, zip_code zipcode
+		, address
+		, address_detail addressDetail
+		, rrn 
+		, customer_type customertype
+		, available_balance availablebalance
+		, reg_date regdate
+		from test_customer
+		where customer_ID = #{customerId}
+	</select>
+	
+	<!-- 프로필 변경 -->
+	<update id="updateProfile" parameterType="memberVO">
+		update test_customer
+		<set>
+			<if test="password!=null">
+			password = #{password},
+			</if>
+			<if test="creditPassword!=null">
+			credit_password = #{creditPassword},
+			</if>
+			<if test="phoneNum!=null">
+			phone_num = #{phoneNum},
+			</if>
+			<if test="name!=null">
+			name = #{name}, 
+			</if>
+			<if test="email!=null">
+			email = #{email},
+			</if>
+			<if test="zipCode!=null">
+			ZIP_CODE = #{zipCode},
+			address = #{address},
+			</if>
+			<if test="addressDetail!=null">
+			address_detail = #{addressDetail},
+			</if>
+		</set>
+		where customer_id = #{customerId}
+	</update>
+	
+	<!-- 재가입 -->
+	<update id="updateBankId" parameterType="memberVO">
+		update test_customer
+		<set>
+		bank_id = #{userId}
+		, password = #{password}
+		<if test="email!=null">
+			,email = #{email}
+		</if>
+		<if test="zipCode>0">
+			,ZIP_CODE = #{zipCode}
+			,address = #{address}
+		</if>
+		<if test="addressDetail!=null">
+			,address_detail = #{addressDetail},
+		</if>
+		reg_date = sysdate
+		</set>
+		where name=#{name} and rrn = #{rrn} and phone_num = #{phoneNum}
+	</update>
+	<update id="updateBankIdByEmail" parameterType="memberVO">
+		update test_customer
+		<set>
+		bank_id = #{userId}
+		, password = #{password}
+		,phone_num = #{phoneNum}
+		<if test="zipCode>0">
+			,ZIP_CODE = #{zipCode}
+			,address = #{address}
+		</if>
+		<if test="addressDetail!=null">
+			,address_detail = #{addressDetail},
+		</if>
+		reg_date = sysdate
+		</set>
+		where name=#{name} and rrn = #{rrn} and email = #{email}
+	</update>
+	
+	<!-- 세션 로그인중인 계정 비번 체크 -->
+	<select id="getPwd" parameterType="Long" resultType="memberVO">
+		select password
+		from test_customer
+		where customer_id = #{customerId}
+	</select>
+	
+	<!-- 세션 로그인중인 rrn 체크 -->
+	<select id="checkBirth" parameterType="memberVO" resultType="String">
+		select rrn
+		from test_customer
+		where customer_id = #{customerId}
+	</select>
+	
+	<!-- 전체 회원 조회 -->
+    <select id="selectAllMembers" resultType="memberVO">
+        select customer_id as customerId,
+               bank_id as userId,
+               name,
+               phone_num as phoneNum,
+               email,
+               zip_code as zipCode,
+               address,
+               address_detail as addressDetail,
+               rrn,
+               customer_type as customerType,
+               available_balance as availableBalance,
+               reg_date as regDate
+        from test_customer
+    </select>
+
+    <!-- 회원 상세 조회 -->
+    <select id="getMemberById" parameterType="int" resultType="memberVO">
+        SELECT customer_id AS customerId,
+               bank_id AS userId,
+               name,
+               phone_num AS phoneNum,
+               email,
+               zip_code AS zipCode,
+               address,
+               address_detail AS addressDetail,
+               rrn,
+               customer_type AS customerType,
+               available_balance AS availableBalance,
+               reg_date AS regDate
+        FROM test_customer
+        WHERE customer_id = #{customerId}
+    </select>
+
+    <!-- 회원 검색 -->
+    <select id="searchMembers" parameterType="map" resultType="memberVO">
+        select customer_ID as customerId,
+               bank_id as userId,
+               name,
+               phone_num as phoneNum,
+               email,
+               zip_code as zipCode,
+               address,
+               address_detail as addressDetail,
+               rrn,
+               customer_type as customerType,
+               available_balance as availableBalance,
+               reg_date as regDate
+        from test_customer
+        where
+        <choose>
+            <when test="type == 'userId'">
+                bank_id like '%' || #{keyword} || '%'
+            </when>
+            <when test="type == 'name'">
+                name like '%' || #{keyword} || '%'
+            </when>
+            <when test="type == 'phoneNum'">
+                phone_num like '%' || #{keyword} || '%'
+            </when>
+            <when test="type == 'email'">
+                email like '%' || #{keyword} || '%'
+            </when>
+        </choose>
+    </select>
+
+	
+</mapper>

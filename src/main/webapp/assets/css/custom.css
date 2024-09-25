@@ -1,0 +1,150 @@
+/*
+Custom CSS for TemplateMo 561 Purple Buzz
+
+https://templatemo.com/tm-561-purple-buzz
+
+*/
+th{
+		background-color:#5c60dc !important;
+		color:white;
+		text-align:center;
+}
+td{
+	text-align:center;
+}
+table{
+	width:100%;
+}
+.formSelect{
+	height: calc(3.8rem + 2px) !important;
+}
+/* account list*/
+.left-16{
+	left:16% !important;
+}
+
+/*transfer modal*/
+.modal-form{
+	display:block;
+	text-align: -webkit-center;
+	min-width:550px;
+	width:100%;
+	padding-right:50px;
+    flex-direction: column;
+    align-items: center;
+}
+.border-clean{
+	border: 0px !important;
+}
+.label2{
+	right:0 !important;
+	bottom:0 !important;
+	left:auto !important;
+	top:50px !important;
+}
+.white-box{
+	background: white !important;
+	color: #6266EA !important;
+	font-style: #6266EA !important;
+}
+/*account List*/
+/*계좌박스 정렬*/
+.my-5-custom{
+	margin-bottom: 1rem !important;
+}
+.account-card{
+	text-align:center;
+	padding: 5px;
+}
+.a-margin{
+	margin-bottom:10px;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+.min-height{
+	min-height:300px;
+}
+.decoration-none{
+	border:0px !important;
+	background:none !important;
+}
+
+/*a-*/
+
+/*signUp*/
+/*sign-up form 중앙정렬*/
+.sign-up{
+	justify-content: center !important;
+}
+/*submit 버튼 중앙정렬*/
+.text-center{
+	text-align:center !important;
+}
+/*signUp error msg*/
+.error{
+		color:red;
+		font-size:14px;
+		font-weight: bold;
+	}
+.margin-auto{
+	margin: auto;
+}
+
+/* Sign up 돌아가기 버튼 */
+.btn-3 {
+  color: #6266ea;
+  background-color: #ffffff;
+  border-color: #6266ea;
+}
+.btn-3:hover {
+  color: #7a7ded;
+  background-color: #e7e7e7;
+  border-color: #7a7ded;
+}
+/*sign in*/
+.sign-in{
+	justify-content: center !important;
+}
+.sign-in-btn{
+	min-width: 150px;
+	max-width: 250px;
+	width:30%;
+	height:45px;
+}
+.sign-in-div{
+	justify-content: center;
+	min-width:600px;
+}
+.sign-in-div2{
+	justify-content: center;
+	max-width:400px;
+	min-width:300px;
+	width:100%;
+}
+.sign-in-form{
+	display:block;
+	text-align: -webkit-center;
+	min-width:550px;
+	width:100%;
+}
+/*header*/
+body{
+	padding-top:80px;
+}
+header{
+    height: 40px;
+    position: fixed;
+    top: 0;
+    transform: initial;
+    transition: transform 0.3s ease-in-out;
+    width: 100%;
+    z-index: 2303110264;
+}
+header.scrollDown { 
+  transform: translate(0, -90px);
+}
+
+/*main banner*/
+.click-banner{
+	cursor: pointer;
+}
